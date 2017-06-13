@@ -16,17 +16,17 @@
 
 include(CMakeForceCompiler)
 
-#if ("$ENV{RPI_TOOLCHAIN_DIR}" STREQUAL "")
-#        message(FATAL_ERROR "RPI_TOOLCHAIN_DIR not set")
-#else()
-#        set(RPI_TOOLCHAIN_DIR $ENV{RPI_TOOLCHAIN_DIR})
-#endif()
+if ("$ENV{TOOLCHAIN_BIN_DIR}" STREQUAL "")
+        message(FATAL_ERROR "TOOLCHAIN_BIN_DIR not set")
+else()
+        set(TOOLCHAIN_BIN_DIR $ENV{TOOLCHAIN_BIN_DIR})
+endif()
 
-#if ("$ENV{CROSS_COMPILE_PREFIX}" STREQUAL "")
-#        message(FATAL_ERROR "CROSS_COMPILE_PREFIX not set")
-#else()
-#        set(CROSS_COMPILE_PREFIX $ENV{CROSS_COMPILE_PREFIX})
-#endif()
+if ("$ENV{CROSS_COMPILE}" STREQUAL "")
+        message(FATAL_ERROR "CROSS_COMPILE not set")
+else()
+        set(CROSS_COMPILE $ENV{CROSS_COMPILE})
+endif()
 
 # 此处定义CROSS_COMPILE
 set(CROSS_COMPILE $ENV{CROSS_COMPILE})
