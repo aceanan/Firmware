@@ -81,7 +81,7 @@ int RcInput::init() {
 	if (0!=ioctl(_device_fd, TCSETS2, &tio)) {
 		close(_device_fd);
 		_device_fd = -1;
-		return -1
+		return -1;
 	}
 	return 0;
 }
@@ -200,14 +200,14 @@ static void linux_sbus::usage(const char *reason) {
 	PX4_INFO("用法: linux_sbus {start|stop|status} -d <deive>  -c <channel>");
 }
 //---------------------------------------------------------------------------------------------------------//
-int linus_sbus_main(int argc, char **argv) {
+int linux_sbus_main(int argc, char **argv) {
 	if (argc < 7) {
 		usage("linux_sbus {start|stop|status} -d <deive>  -c <channel>");
 		return 1;
 	}
 	int start;
 	char device[30];
-	int max_channel;
+	int max_channel=8; //8 channel for default setting
 
 	// Get device and channels count from console
 	for (start = 0; start < argc; ++start) {
@@ -226,7 +226,7 @@ int linus_sbus_main(int argc, char **argv) {
 
 	if (!strcmp(argv[1], "start")) {
 
-		if (nullptr ! = rc_input && rc_input->isRunning()) {
+		if (nullptr!=rc_input && rc_input->isRunning()) {
 			PX4_WARN("运行中。running");
 			/* this is not an error */
 			return 0;
@@ -240,7 +240,7 @@ int linus_sbus_main(int argc, char **argv) {
 			return -1;
 		}
 
-		int ret = rc_input->start();
+		int ret = rc_input->start(device,max_channel);
 
 		if (ret != 0) {
 			PX4_ERR("遥控输入模块未能启动。 Rc input module failure");
