@@ -38,27 +38,27 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 
 # specify the cross compiler
-find_program(C_COMPILER ${CROSS_COMPILE}-gcc
+find_program(C_COMPILER ${CROSS_COMPILE}gcc
 	PATHS ${TOOLCHAIN_BIN_DIR}
 	NO_DEFAULT_PATH)
 
 if(NOT C_COMPILER)
-	message(FATAL_ERROR "could not find ${CROSS_COMPILE}-gcc compiler")
+	message(FATAL_ERROR "could not find ${CROSS_COMPILE}gcc compiler")
 endif()
 cmake_force_c_compiler(${C_COMPILER} GNU)
 
-find_program(CXX_COMPILER  ${CROSS_COMPILE}-g++
+find_program(CXX_COMPILER  ${CROSS_COMPILE}g++
 	PATHS ${TOOLCHAIN_BIN_DIR}
 	NO_DEFAULT_PATH)
 if(NOT CXX_COMPILER)
-	message(FATAL_ERROR "could not find ${CROSS_COMPILE}-g++ compiler")
+	message(FATAL_ERROR "could not find ${CROSS_COMPILE}g++ compiler")
 endif()
 cmake_force_cxx_compiler(${CXX_COMPILER} GNU)
 
 # compiler tools
 foreach(tool objcopy nm ld)
 	string(TOUPPER ${tool} TOOL)
-	find_program(${TOOL} ${CROSS_COMPILE}-${tool}
+	find_program(${TOOL} ${CROSS_COMPILE}${tool}
 		PATHS ${TOOLCHAIN_BIN_DIR}
 		NO_DEFAULT_PATH)
 	if(NOT ${TOOL})
