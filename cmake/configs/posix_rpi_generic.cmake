@@ -123,4 +123,4 @@ set(config_df_driver_list
 	isl29501
 )
 
-set(CMAKE_TOOLCHAIN_FILE ${PX4_SOURCE_DIR}/cmake/toolchains/Toolchain-cross-generic.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${PX4_SOURCE_DIR}/cmake/toolchains/Toolchain-arm-cross-and-native-generic.cmake)
