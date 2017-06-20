@@ -2,7 +2,6 @@
 # and posix_rpi_cross.cmake.
 
 include(posix/px4_impl_posix)
-
 # This definition allows to differentiate if this just the usual POSIX build
 # or if it is for the RPi.
 add_definitions(
