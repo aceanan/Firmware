@@ -13,6 +13,8 @@
 # CMAKE_FIND_ROOT_PATH_MODE_PROGRAM
 # CMAKE_FIND_ROOT_PATH_MODE_LIBRARY
 # CMAKE_FIND_ROOT_PATH_MODE_INCLUDE
+# if $CROSS_COMPILE  is defined , then cross compile px4
+# otherwise compile it in the native  
 
 include(CMakeForceCompiler)
 
