@@ -77,6 +77,7 @@ set(config_module_list
 	#
 	drivers/gps
 	drivers/linux_sbus
+	drivers/linux_pca9685
 	drivers/rpi_rc_in
 	drivers/rpi_pca9685_pwm_out
 	drivers/navio_adc
