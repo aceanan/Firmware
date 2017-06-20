@@ -76,6 +76,9 @@ set(config_module_list
 	# PX4 drivers
 	#
 	drivers/gps
+	drivers/linux_sbus
+	drivers/rpi_rc_in
+	drivers/rpi_pca9685_pwm_out
 	drivers/navio_adc
 	drivers/navio_sysfs_rc_in
 	drivers/navio_sysfs_pwm_out

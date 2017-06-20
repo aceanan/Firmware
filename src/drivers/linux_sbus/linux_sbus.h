@@ -1,3 +1,4 @@
+
 /****************************************************************************
  *
  *   Copyright (C) 2015 Mark Charl. All rights reserved.
@@ -51,6 +52,17 @@
 #include <uORB/uORB.h>
 #include <uORB/topics/input_rc.h>
 #define RCINPUT_MEASURE_INTERVAL_US 4700
+/* define range mapping here, -+100% -> 1000..2000 */
+#define SBUS_RANGE_MIN 200.0f
+#define SBUS_RANGE_MAX 1800.0f
+
+#define SBUS_TARGET_MIN 1000.0f
+#define SBUS_TARGET_MAX 2000.0f
+
+/* pre-calculate the floating point stuff as far as possible at compile time */
+#define SBUS_SCALE_FACTOR ((SBUS_TARGET_MAX - SBUS_TARGET_MIN) / (SBUS_RANGE_MAX - SBUS_RANGE_MIN))
+#define SBUS_SCALE_OFFSET (int)(SBUS_TARGET_MIN - (SBUS_SCALE_FACTOR * SBUS_RANGE_MIN + 0.5f))
+
 namespace linux_sbus {
 class RcInput {
 public:

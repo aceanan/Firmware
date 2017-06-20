@@ -251,14 +251,14 @@ int linux_sbus_main(int argc, char **argv) {
 		}
 
 		if (0 == strcmp(argv[start], "-d")) {
-			if(arc>(start+1)){
+			if (argc > (start + 1)) {
 				strcpy(device, argv[start + 1]);
 			}
 			continue;
 		}
 
 		if (0 == strcmp(argv[start], "-c")) {
-			if(arc>(start+1)){
+			if (argc > (start + 1)) {
 				max_channel = atoi(argv[start + 1]);
 			}
 			continue;
@@ -266,9 +266,7 @@ int linux_sbus_main(int argc, char **argv) {
 	}
 	//Channels count should less than 16;
 	max_channel = (max_channel > 16) ? 16 : max_channel;
-
-	switch (command) {
-	case 0:
+	if (0 == command) {
 		if (nullptr != rc_input && rc_input->isRunning()) {
 			PX4_WARN("运行中。running");
 			/* this is not an error */
@@ -289,8 +287,10 @@ int linux_sbus_main(int argc, char **argv) {
 			PX4_ERR("遥控输入模块未能启动。 Linux sbus module failure");
 		}
 		return 0;
+	}
 
-	case 1:
+	if (1 == command) {
+
 		if (rc_input == nullptr || !rc_input->isRunning()) {
 			PX4_WARN("模块未运行。 Not runing");
 			/* this is not an error */
@@ -310,22 +310,18 @@ int linux_sbus_main(int argc, char **argv) {
 
 		delete rc_input;
 		rc_input = nullptr;
-
 		return 0;
-
-	case 2:
+	}
+	if (2 == command) {
 		if (rc_input != nullptr && rc_input->isRunning()) {
 			PX4_INFO("运行中。 running");
 		} else {
 			PX4_INFO("未运行。 Not runing\n");
 		}
 		return 0;
-
-	default:
-		usage(
-				"不知道你要做什么。 linux_sbus start|stop|status -d <deive>  -c <channel>");
-		break;
-		return 1;
-
 	}
+	linux_sbus::usage(
+			"不知道你要做什么。 linux_sbus start|stop|status -d <deive>  -c <channel>");
+	return 0;
+}
 //---------------------------------------------------------------------------------------------------------//
