@@ -53,7 +53,8 @@ int RcInput::init() {
 	//初始化串口，供sbus读写
 	_device_fd = open(_device, O_RDWR | O_NONBLOCK | O_CLOEXEC);
 	if (-1 == _device_fd) {
-		PX4_ERR("Open SBUS input %s faild,status %d \n", _device, (int) _device_fd);
+		PX4_ERR("Open SBUS input %s faild,status %d \n", _device,
+				(int ) _device_fd);
 		fflush (stdout);
 		return -1;
 	}
@@ -78,7 +79,7 @@ int RcInput::init() {
 	// see select() comment below
 	tio.c_cc[VMIN] = 25;
 	tio.c_cc[VTIME] = 0;
-	if (0!=ioctl(_device_fd, TCSETS2, &tio)) {
+	if (0 != ioctl(_device_fd, TCSETS2, &tio)) {
 		close(_device_fd);
 		_device_fd = -1;
 		return -1;
@@ -109,6 +110,7 @@ int RcInput::start(char *device, int channels) {
 }
 //---------------------------------------------------------------------------------------------------------//
 void RcInput::stop() {
+	close(_device_fd);
 	_shouldExit = true;
 }
 //---------------------------------------------------------------------------------------------------------//
@@ -135,13 +137,13 @@ void RcInput::_measure(void) {
 	struct timeval tv;
 	FD_ZERO(&fds);
 	FD_SET(_device_fd, &fds);
-	select(_device_fd+1, &fds, nullptr, nullptr, &tv);
+	select(_device_fd + 1, &fds, nullptr, nullptr, &tv);
 	int count = 0; //error counter;
-	while(1){
+	while (1) {
 		nread = read(_device_fd, &_sbusData, sizeof(_sbusData));
-		if(25==nread){
-		    if(0x0f==_sbusData[0] && 0x00==_sbusData[24]){
-		    	break;
+		if (25 == nread) {
+			if (0x0f == _sbusData[0] && 0x00 == _sbusData[24]) {
+				break;
 			}
 		}
 		++count;
@@ -149,26 +151,47 @@ void RcInput::_measure(void) {
 	}
 
 	// pars sbus data to pwm
-	_channels_data[0] = ((_sbusData[1] | _sbusData[2] << 8) & 0x07FF);
-	_channels_data[1] = ((_sbusData[2] >> 3 | _sbusData[3] << 5) & 0x07FF);
-	_channels_data[2] = ((_sbusData[3] >> 6 | _sbusData[4] << 2 | _sbusData[5] << 10)
-				& 0x07FF);
-	_channels_data[3] = ((_sbusData[5] >> 1 | _sbusData[6] << 7) & 0x07FF);
-	_channels_data[4] = ((_sbusData[6] >> 4 | _sbusData[7] << 4) & 0x07FF);
-	_channels_data[5] = ((_sbusData[7] >> 7 | _sbusData[8] << 1 | _sbusData[9] << 9)
-				& 0x07FF);
-	_channels_data[6] = ((_sbusData[9] >> 2 | _sbusData[10] << 6) & 0x07FF);
-	_channels_data[7] = ((_sbusData[10] >> 5 | _sbusData[11] << 3) & 0x07FF);
-	_channels_data[8] = ((_sbusData[12] | _sbusData[13] << 8) & 0x07FF);
-	_channels_data[9] = ((_sbusData[13] >> 3 | _sbusData[14] << 5) & 0x07FF);
-	_channels_data[10] = ((_sbusData[14] >> 6 | _sbusData[15] << 2
-					| _sbusData[16] << 10) & 0x07FF);
-	_channels_data[11] = ((_sbusData[16] >> 1 | _sbusData[17] << 7) & 0x07FF);
-	_channels_data[12] = ((_sbusData[17] >> 4 | _sbusData[18] << 4) & 0x07FF);
-	_channels_data[13] = ((_sbusData[18] >> 7 | _sbusData[19] << 1
-					| _sbusData[20] << 9) & 0x07FF);
-	_channels_data[14] = ((_sbusData[20] >> 2 | _sbusData[21] << 6) & 0x07FF);
-	_channels_data[15] = ((_sbusData[21] >> 5 | _sbusData[22] << 3) & 0x07FF);
+	_channels_data[0] = (uint16_t) (((_sbusData[1] | _sbusData[2] << 8) & 0x07FF)
+			* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[1] =
+			(uint16_t) (((_sbusData[2] >> 3 | _sbusData[3] << 5) & 0x07FF)
+					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[2] = (uint16_t) (((_sbusData[3] >> 6 | _sbusData[4] << 2
+			| _sbusData[5] << 10) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
+			+ SBUS_SCALE_OFFSET;
+	_channels_data[3] =
+			(uint16_t) (((_sbusData[5] >> 1 | _sbusData[6] << 7) & 0x07FF)
+					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[4] =
+			(uint16_t) (((_sbusData[6] >> 4 | _sbusData[7] << 4) & 0x07FF)
+					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[5] = (uint16_t) (((_sbusData[7] >> 7 | _sbusData[8] << 1
+			| _sbusData[9] << 9) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
+			+ SBUS_SCALE_OFFSET;
+	_channels_data[6] = (uint16_t) (((_sbusData[9] >> 2 | _sbusData[10] << 6)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[7] = (uint16_t) (((_sbusData[10] >> 5 | _sbusData[11] << 3)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET; // & the other 8 + 2 channels if you need them
+	_channels_data[8] = (uint16_t) (((_sbusData[12] | _sbusData[13] << 8) & 0x07FF)
+			* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	;
+	_channels_data[9] = (uint16_t) (((_sbusData[13] >> 3 | _sbusData[14] << 5)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	;
+	_channels_data[10] = (uint16_t) (((_sbusData[14] >> 6 | _sbusData[15] << 2
+			| _sbusData[16] << 10) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
+			+ SBUS_SCALE_OFFSET;
+	_channels_data[11] = (uint16_t) (((_sbusData[16] >> 1 | _sbusData[17] << 7)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[12] = (uint16_t) (((_sbusData[17] >> 4 | _sbusData[18] << 4)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[13] = (uint16_t) (((_sbusData[18] >> 7 | _sbusData[19] << 1
+			| _sbusData[20] << 9) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
+			+ SBUS_SCALE_OFFSET;
+	_channels_data[14] = (uint16_t) (((_sbusData[20] >> 2 | _sbusData[21] << 6)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[15] = (uint16_t) (((_sbusData[21] >> 5 | _sbusData[22] << 3)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
 
 	// PWM数据发布
 	int i = 0;
@@ -183,8 +206,8 @@ void RcInput::_measure(void) {
 	_data.rc_lost_frame_count = 0;
 	_data.rc_total_frame_count = 1;
 	_data.rc_ppm_frame_length = 0;
-	_data.rc_failsafe = (_sbusData[23] & (1 << 3))?true:false;
-	_data.rc_lost = (_sbusData[23] & (1 << 2))?true:false;
+	_data.rc_failsafe = (_sbusData[23] & (1 << 3)) ? true : false;
+	_data.rc_lost = (_sbusData[23] & (1 << 2)) ? true : false;
 	_data.input_source = input_rc_s::RC_INPUT_SOURCE_PX4IO_SBUS;
 	orb_publish(ORB_ID(input_rc), _rcinput_pub, &_data);
 }
@@ -207,7 +230,7 @@ int linux_sbus_main(int argc, char **argv) {
 	}
 	int start;
 	char device[30];
-	int max_channel=8; //8 channel for default setting
+	int max_channel = 8; //8 channel for default setting
 
 	// Get device and channels count from console
 	for (start = 0; start < argc; ++start) {
@@ -217,7 +240,7 @@ int linux_sbus_main(int argc, char **argv) {
 		}
 
 		if (0 == strcmp(argv[start], "-c")) {
-			max_channel = atoi(argv[start]);
+			max_channel = atoi(argv[start]+1);
 			continue;
 		}
 	}
@@ -226,7 +249,7 @@ int linux_sbus_main(int argc, char **argv) {
 
 	if (!strcmp(argv[1], "start")) {
 
-		if (nullptr!=rc_input && rc_input->isRunning()) {
+		if (nullptr != rc_input && rc_input->isRunning()) {
 			PX4_WARN("运行中。running");
 			/* this is not an error */
 			return 0;
@@ -240,7 +263,7 @@ int linux_sbus_main(int argc, char **argv) {
 			return -1;
 		}
 
-		int ret = rc_input->start(device,max_channel);
+		int ret = rc_input->start(device, max_channel);
 
 		if (ret != 0) {
 			PX4_ERR("遥控输入模块未能启动。 Rc input module failure");
