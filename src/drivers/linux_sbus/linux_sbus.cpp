@@ -151,20 +151,18 @@ void RcInput::_measure(void) {
 	}
 
 	// pars sbus data to pwm
-	_channels_data[0] = (uint16_t) (((_sbusData[1] | _sbusData[2] << 8) & 0x07FF)
-			* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
-	_channels_data[1] =
-			(uint16_t) (((_sbusData[2] >> 3 | _sbusData[3] << 5) & 0x07FF)
+	_channels_data[0] =
+			(uint16_t) (((_sbusData[1] | _sbusData[2] << 8) & 0x07FF)
 					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[1] = (uint16_t) (((_sbusData[2] >> 3 | _sbusData[3] << 5)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
 	_channels_data[2] = (uint16_t) (((_sbusData[3] >> 6 | _sbusData[4] << 2
 			| _sbusData[5] << 10) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
 			+ SBUS_SCALE_OFFSET;
-	_channels_data[3] =
-			(uint16_t) (((_sbusData[5] >> 1 | _sbusData[6] << 7) & 0x07FF)
-					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
-	_channels_data[4] =
-			(uint16_t) (((_sbusData[6] >> 4 | _sbusData[7] << 4) & 0x07FF)
-					* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[3] = (uint16_t) (((_sbusData[5] >> 1 | _sbusData[6] << 7)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[4] = (uint16_t) (((_sbusData[6] >> 4 | _sbusData[7] << 4)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
 	_channels_data[5] = (uint16_t) (((_sbusData[7] >> 7 | _sbusData[8] << 1
 			| _sbusData[9] << 9) & 0x07FF) * SBUS_SCALE_FACTOR + .5f)
 			+ SBUS_SCALE_OFFSET;
@@ -172,8 +170,8 @@ void RcInput::_measure(void) {
 			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
 	_channels_data[7] = (uint16_t) (((_sbusData[10] >> 5 | _sbusData[11] << 3)
 			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET; // & the other 8 + 2 channels if you need them
-	_channels_data[8] = (uint16_t) (((_sbusData[12] | _sbusData[13] << 8) & 0x07FF)
-			* SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
+	_channels_data[8] = (uint16_t) (((_sbusData[12] | _sbusData[13] << 8)
+			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
 	;
 	_channels_data[9] = (uint16_t) (((_sbusData[13] >> 3 | _sbusData[14] << 5)
 			& 0x07FF) * SBUS_SCALE_FACTOR + .5f) + SBUS_SCALE_OFFSET;
@@ -224,31 +222,53 @@ static void linux_sbus::usage(const char *reason) {
 }
 //---------------------------------------------------------------------------------------------------------//
 int linux_sbus_main(int argc, char **argv) {
-	if (argc < 7) {
-		usage("linux_sbus {start|stop|status} -d <deive>  -c <channel>");
-		return 1;
-	}
+	/*
+	 if (argc < 7) {
+	 usage("linux_sbus {start|stop|status} -d <deive>  -c <channel>");
+	 return 1;
+	 }*/
+
 	int start;
-	char device[30];
+	int command = -1;
+	char device[30] = "/dev/ttyS1"; //ttyS1 for default
 	int max_channel = 8; //8 channel for default setting
 
-	// Get device and channels count from console
+	//Parse command line and get device and channels count from console
 	for (start = 0; start < argc; ++start) {
+		if (0 == strcmp(argv[start], "start")) {
+			command = 0;
+			continue;
+		}
+
+		if (0 == strcmp(argv[start], "stop")) {
+			command = 1;
+			continue;
+		}
+
+		if (0 == strcmp(argv[start], "status")) {
+			command = 1;
+			continue;
+		}
+
 		if (0 == strcmp(argv[start], "-d")) {
-			strcpy(device, argv[start] + 1);
+			if(arc>(start+1)){
+				strcpy(device, argv[start + 1]);
+			}
 			continue;
 		}
 
 		if (0 == strcmp(argv[start], "-c")) {
-			max_channel = atoi(argv[start]+1);
+			if(arc>(start+1)){
+				max_channel = atoi(argv[start + 1]);
+			}
 			continue;
 		}
 	}
 	//Channels count should less than 16;
 	max_channel = (max_channel > 16) ? 16 : max_channel;
 
-	if (!strcmp(argv[1], "start")) {
-
+	switch (command) {
+	case 0:
 		if (nullptr != rc_input && rc_input->isRunning()) {
 			PX4_WARN("运行中。running");
 			/* this is not an error */
@@ -259,21 +279,18 @@ int linux_sbus_main(int argc, char **argv) {
 
 		// Check if alloc worked.
 		if (nullptr == rc_input) {
-			PX4_ERR("遥控输入模块初始化错误。Rc input moduel  initialization faild");
+			PX4_ERR("遥控输入模块初始化错误。Sbus initialization faild");
 			return -1;
 		}
 
 		int ret = rc_input->start(device, max_channel);
 
 		if (ret != 0) {
-			PX4_ERR("遥控输入模块未能启动。 Rc input module failure");
+			PX4_ERR("遥控输入模块未能启动。 Linux sbus module failure");
 		}
-
 		return 0;
-	}
 
-	if (!strcmp(argv[1], "stop")) {
-
+	case 1:
 		if (rc_input == nullptr || !rc_input->isRunning()) {
 			PX4_WARN("模块未运行。 Not runing");
 			/* this is not an error */
@@ -295,21 +312,20 @@ int linux_sbus_main(int argc, char **argv) {
 		rc_input = nullptr;
 
 		return 0;
-	}
 
-	if (!strcmp(argv[1], "status")) {
+	case 2:
 		if (rc_input != nullptr && rc_input->isRunning()) {
 			PX4_INFO("运行中。 running");
-
 		} else {
 			PX4_INFO("未运行。 Not runing\n");
 		}
-
 		return 0;
+
+	default:
+		usage(
+				"不知道你要做什么。 linux_sbus start|stop|status -d <deive>  -c <channel>");
+		break;
+		return 1;
+
 	}
-
-	usage("不知道你要做什么。 linux_sbus start|stop|status -d <deive>  -c <channel>");
-	return 1;
-
-}
 //---------------------------------------------------------------------------------------------------------//
