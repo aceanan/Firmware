@@ -90,7 +90,7 @@ int RcInput::init() {
 int RcInput::start(char *device, int channels) {
 	int result = 0;
 	strcpy(_device, device);
-	PX4_WARN("Device %s \n, channels: %d \n",device,channels);
+	PX4_WARN("Device %s , channels: %d \n",device,channels);
 	_channels = channels;
 	result = init();
 
