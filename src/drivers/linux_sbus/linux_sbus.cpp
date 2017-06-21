@@ -131,7 +131,6 @@ void RcInput::_cycle() {
 //---------------------------------------------------------------------------------------------------------//
 void RcInput::_measure(void) {
 	uint64_t ts;
-	PX4_WARN("On measure \n");
 	//开始解析SBUS数据
 	int nread;
 	fd_set fds;
@@ -145,13 +144,13 @@ void RcInput::_measure(void) {
 		nread = read(_device_fd, &_sbusData, sizeof(_sbusData));
 		if (25 == nread) {
 			if (0x0f == _sbusData[0] && 0x00 == _sbusData[24]) {
-				PX4_WARN("I find it\n");
 				break;
 			}
 		}
 		++count;
 		usleep(RCINPUT_MEASURE_INTERVAL_US);
 	}
+	PX4_WARN("Lost count %d \n",count);
 
 	// pars sbus data to pwm
 	_channels_data[0] =
