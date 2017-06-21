@@ -195,6 +195,7 @@ void RcInput::_measure(void) {
 	int i = 0;
 	for (i = 0; i < _channels; ++i) {
 		_data.values[i] = _channels_data[i];
+		PX_WARN("Channel %d is  %d \n",i+1,_data.values[i]);
 	}
 	ts = hrt_absolute_time();
 	_data.timestamp = ts;
