@@ -90,6 +90,7 @@ int RcInput::init() {
 int RcInput::start(char *device, int channels) {
 	int result = 0;
 	strcpy(_device, device);
+	PX4_WARN("Device %s \n, channels: %d \n",device,channels);
 	_channels = channels;
 	result = init();
 
@@ -140,9 +141,11 @@ void RcInput::_measure(void) {
 	select(_device_fd + 1, &fds, nullptr, nullptr, &tv);
 	int count = 0; //error counter;
 	while (1) {
+		fflush(stdout);
 		nread = read(_device_fd, &_sbusData, sizeof(_sbusData));
 		if (25 == nread) {
 			if (0x0f == _sbusData[0] && 0x00 == _sbusData[24]) {
+				PX4_WARN("I find it\n");
 				break;
 			}
 		}
