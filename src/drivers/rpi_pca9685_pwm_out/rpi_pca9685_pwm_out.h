@@ -95,7 +95,7 @@ int32_t _pwm_max;
 //PCA9685 device
 ::PCA9685 pwm;
 #if defined(__DF_ARM_GENERIC)
-int _pca9685_bus=__DF_PCA9685_BUS
+int _pca9685_bus=__DF_PCA9685_BUS;
 #else
 int _pca9685_bus=1; //默认兼容树莓派
 #endif
