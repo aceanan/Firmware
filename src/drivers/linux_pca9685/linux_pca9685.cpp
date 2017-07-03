@@ -378,40 +378,40 @@ int linux_pca9685_main(int argc, char **argv) {
 	//读取控制台参数
 	int start;
 	for (start = 0; start < argc; ++start) {
-		if (0 == strcmp("start", *(argv + start))) {
+		if (0 == strcmp("start", argv[start])) {
 			command = 0;
 			continue;
 		}
 
-		if (0 == strcmp("stop", *(argv + start))) {
+		if (0 == strcmp("stop", argv[start])) {
 			command = 1;
 			continue;
 		}
 
-		if (0 == strcmp("status", *(argv + start))) {
+		if (0 == strcmp("status", argv[start])) {
 			command = 2;
 			continue;
 		}
 
-		if (0 == strcmp("-d", *(argv + start))) {
+		if (0 == strcmp("-d", argv[start])) {
 			if(argc<=start+1)
 				continue;
-			strncpy(device_path, *(argv + start + 1), sizeof(device_path));
+			strncpy(device_path, argv[start + 1], sizeof(device_path));
 			continue;
 		}
 
-		if (0 == strcmp("-m", *(argv + start + 1))) {
+		if (0 == strcmp("-m", argv[start])) {
 			if(argc<=start+1)
 				continue;
-			strncpy(_mixer_filename, *(argv + start + 1),
+			strncpy(_mixer_filename,argv[start+1],
 					sizeof(_mixer_filename));
 			continue;
 		}
 
-		if (0 == strcmp("--motors", *(argv + start))) {
+		if (0 == strcmp("--motors", argv[start])) {
 			if(argc<=start+1)
 				continue;
-			NUM_PWM = atoi(*(argv + start+ 1));
+			NUM_PWM = atoi(argv[start+1]);
 			if (NUM_PWM > 8 || NUM_PWM < 4)
 				NUM_PWM = 4;
 			continue;
