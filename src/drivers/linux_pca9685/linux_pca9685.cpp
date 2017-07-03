@@ -374,7 +374,7 @@ void linux_pca9685::usage() {
 int linux_pca9685_main(int argc, char **argv) {
 
 	int command = -1;  //指令 0:start,1:stop 2:status
-
+	PX4_WARN("Load command from console");
 	//读取控制台参数
 	int start;
 	for (start = 0; start < argc; ++start) {
@@ -418,12 +418,13 @@ int linux_pca9685_main(int argc, char **argv) {
 		}
 	}
 
+
 	//如果没有接收到指令，则退出
 	if (-1 == command) {
 		linux_pca9685::usage();
 		return 1;
 	}
-
+	PX4_WARN("Load param from rootfs\n");
 	// gets the parameters for the esc's pwm
 	param_get(param_find("PWM_DISARMED"), &linux_pca9685::_pwm_disarmed);
 	param_get(param_find("PWM_MIN"), &linux_pca9685::_pwm_min);
