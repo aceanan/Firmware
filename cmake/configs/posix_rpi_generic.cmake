@@ -15,6 +15,7 @@ add_definitions(
 	-D__DF_HMC5883_DEV="/dev/i2c-0"
 	-D__IMU_DEVICE_ACC_GYRO="/dev/spidev0.0"
 	-D__DF_BARO_DEV="/dev/i2c-0"
+	-D__DF_PCA9685_BUS=0
 )
 
 
@@ -83,6 +84,7 @@ set(config_module_list
 	drivers/gps
 	drivers/linux_sbus
 	drivers/linux_pca9685
+	drivers/rpi_pca9685_pwm_out
 	drivers/linux_gpio
 	drivers/navio_rgbled
 	drivers/pwm_out_sim
