@@ -288,8 +288,8 @@ void rpi_pca9685_pwm_out::start()
 	/* start the task */
 	_task_handle = px4_task_spawn_cmd("pwm_out_main",
 					  SCHED_DEFAULT,
-					  SCHED_PRIORITY_MAX-5,
-					  2000,
+					  SCHED_PRIORITY_MAX,
+					  1500,
 					  (px4_main_t)&task_main_trampoline,
 					  nullptr);
 
