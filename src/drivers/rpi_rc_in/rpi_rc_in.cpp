@@ -111,6 +111,8 @@ void RcInput::_measure(void) {
 	int i=0;
 	for(i=0;i<_channels;++i){
 		_data.values[i] = (*(this->mem+i)<=0)?UINT16_MAX:*(this->mem+i);
+		if(i==1)
+			_data.values[i] = ((_data.values[i]/2)*3);
 	}
 
 	ts = hrt_absolute_time();
